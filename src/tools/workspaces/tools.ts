@@ -1,0 +1,51 @@
+import { FastMCP, UserError } from 'fastmcp';
+import { SetWorkspaceParams } from './types.js';
+import { ConfigService } from '../../services/config.js';
+import { getWorkspace, getWorkspaces } from '../../lib/api/workspaces.js';
+import { MCPSession } from '../../types/server.js';
+import getSessionToken from '../../lib/getSessionToken.js';
+
+const registerTools = (server: FastMCP<MCPSession>) => {
+  server.addTool({
+    name: 'set-workspace',
+    description: `Set the workspace where all operations will be performed.`,
+    parameters: SetWorkspaceParams,
+    execute: async (args, { session }) => {
+      const token = getSessionToken(session);
+
+      const configService = new ConfigService(args.rootDirectory);
+      const [workspace, getError] = await getWorkspace(args.workspaceDomain, token);
+
+      if (getError) {
+        throw new UserError(`Provided workspace does not exist.`);
+      }
+
+      configService.updateConfig({
+        workspace: workspace.domain,
+        project: '',
+        pipeline: 0,
+        sandbox: ''
+      });
+
+      return 'Workspace set successfully. Now you can run "deploy" tool to deploy your application.';
+    }
+  });
+
+  server.addTool({
+    name: 'list-workspaces',
+    description: 'List all available workspaces.',
+    execute: async (_, { session }) => {
+      const token = getSessionToken(session);
+
+      const [data, getError] = await getWorkspaces(token);
+
+      if (getError) {
+        throw new UserError(`Something went wrong while fetching workspaces: ${getError.message}`);
+      }
+
+      return `Workspaces:\n${JSON.stringify(data?.workspaces?.map(w => ({ domain: w.domain, name: w.name })), null, 2)}`;
+    }
+  });
+};
+
+export default { registerTools };

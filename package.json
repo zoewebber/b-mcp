@@ -1,0 +1,23 @@
+{
+  "name": "buddy-sandbox-mcp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "fastmcp": "3.19.1",
+    "simple-git": "3.28.0",
+    "yaml": "2.8.1",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
+  },
+  "private": true
+}
