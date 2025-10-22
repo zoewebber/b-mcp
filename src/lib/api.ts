@@ -1,11 +1,10 @@
-import { z } from 'zod';
 import logger from './logger.js';
 
 /**
  * Options for the API request
  */
 export interface ApiRequestOptions {
-  token?: string;
+  token: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   body?: Record<string, unknown>;
   additionalHeaders?: Record<string, string>;
@@ -24,8 +23,6 @@ export class ApiError extends Error {
   }
 }
 
-export type ApiResult<T> = [T, null] | [null, ApiError];
-
 /**
  * Makes a request to an API with application/json content type 
  * and Authorization Bearer token from BUDDY_TOKEN env variable
@@ -34,11 +31,11 @@ export type ApiResult<T> = [T, null] | [null, ApiError];
 export async function apiRequest<T>(
   path: string, 
   options?: ApiRequestOptions
-): Promise<ApiResult<T>> {
+): Promise<T> {
   const baseUrl = process.env.BUDDY_API_URL;
   
   if (!baseUrl) {
-    return [null, new ApiError('BUDDY_API_URL environment variable is not set')];
+    throw new Error('BUDDY_API_URL environment variable is not set');
   }
 
   const {
@@ -76,52 +73,21 @@ export async function apiRequest<T>(
     requestOptions.body = JSON.stringify(body);
   }
 
-  try {
-    logger.debug(`API Request: ${method} ${url}`);
-    if (body) {
-      logger.debug(`Request body: ${JSON.stringify(body)}`);
-    }
-    
-    const response = await fetch(url, requestOptions);
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Failed to read error response');
-      const errorMsg = `API request failed with status ${response.status}: ${errorText}`;
-      logger.error(errorMsg);
-      return [null, new ApiError(errorMsg, response.status)];
-    }
-
-    const data = await response.json();
-    logger.debug(`API Response: ${JSON.stringify(data).substring(0, 200)}${JSON.stringify(data).length > 200 ? '...' : ''}`);
-    return [data as T, null];
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    logger.error(`API request error: ${errorMsg}`);
-    return [null, new ApiError(errorMsg)];
+  logger.debug(`API Request: ${method} ${url}`);
+  if (body) {
+    logger.debug(`Request body: ${JSON.stringify(body)}`);
   }
-}
 
-/**
- * Type-safe API request with Zod schema validation
- * Returns Go-style [result, error] tuple
- */
-export async function typedApiRequest<T>(
-  path: string, 
-  schema: z.ZodType<T>,
-  options: ApiRequestOptions
-): Promise<ApiResult<T>> {
-  const [data, error] = await apiRequest(path, options);
-  
-  if (error) {
-    return [null, error];
+  const response = await fetch(url, requestOptions);
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Failed to read error response');
+    const errorMsg = `API request failed with status ${response.status}: ${errorText}`;
+    logger.error(errorMsg);
+
+    throw new ApiError(errorMsg, response.status);
   }
-  
-  try {
-    const parsed = schema.parse(data);
-    return [parsed, null];
-  } catch (validationError) {
-    const errorMsg = validationError instanceof Error ? validationError.message : String(validationError);
-    logger.error(`Schema validation error: ${errorMsg}`);
-    return [null, new ApiError(`Schema validation error: ${errorMsg}`)];
-  }
+
+  const data = await response.json();
+  logger.debug(`API Response: ${JSON.stringify(data).substring(0, 200)}${JSON.stringify(data).length > 200 ? '...' : ''}`);
+  return data as T;
 }

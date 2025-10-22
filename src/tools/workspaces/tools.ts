@@ -4,6 +4,7 @@ import { ConfigService } from '../../services/config.js';
 import { getWorkspace, getWorkspaces } from '../../lib/api/workspaces.js';
 import { MCPSession } from '../../types/server.js';
 import getSessionToken from '../../lib/getSessionToken.js';
+import { to } from '../../lib/to';
 
 const registerTools = (server: FastMCP<MCPSession>) => {
   server.addTool({
@@ -14,7 +15,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const token = getSessionToken(session);
 
       const configService = new ConfigService(args.rootDirectory);
-      const [workspace, getError] = await getWorkspace(args.workspaceDomain, token);
+      const [workspace, getError] = await to(getWorkspace(args.workspaceDomain, token));
 
       if (getError) {
         throw new UserError(`Provided workspace does not exist.`);
@@ -37,7 +38,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
     execute: async (_, { session }) => {
       const token = getSessionToken(session);
 
-      const [data, getError] = await getWorkspaces(token);
+      const [data, getError] = await to(getWorkspaces(token));
 
       if (getError) {
         throw new UserError(`Something went wrong while fetching workspaces: ${getError.message}`);
