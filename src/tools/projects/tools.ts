@@ -1,7 +1,7 @@
 import { FastMCP, UserError } from 'fastmcp';
 import { AddProjectParams } from './types.js';
 import { ConfigService } from '../../services/config.js';
-import { createProject } from '../../lib/api/projects.js';
+import { ApiClient } from '../../lib/api/client.js';
 import { MCPSession } from '../../types/server.js';
 import getSessionToken from '../../lib/getSessionToken.js';
 import { to } from '../../lib/to';
@@ -13,6 +13,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
     parameters: AddProjectParams,
     execute: async (args, { log, session }) => {
       const token = getSessionToken(session);
+      const client = new ApiClient(token);
 
       const configService = new ConfigService(args.rootDirectory);
       const config = configService.getConfig();
@@ -24,9 +25,9 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       if (config.project) {
         throw new UserError('Project is already created.');
       }
-      const [project, createError] = await to(createProject(config.workspace, {
+      const [project, createError] = await to(client.projects.create(config.workspace, {
         display_name: args.projectName
-      }, token));
+      }));
 
       if (createError) {
         log.error(createError.message);
