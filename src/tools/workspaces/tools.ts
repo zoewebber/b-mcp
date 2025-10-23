@@ -14,8 +14,8 @@ const registerTools = (server: FastMCP<MCPSession>) => {
     execute: async (args, { session }) => {
       const token = getSessionToken(session);
       const client = new ApiClient(token);
+      const configService = new ConfigService(args.projectRootDirectory);
 
-      const configService = new ConfigService(args.rootDirectory);
       const [workspace, getError] = await to(client.workspaces.get({ workspace: args.workspaceDomain }));
 
       if (getError) {

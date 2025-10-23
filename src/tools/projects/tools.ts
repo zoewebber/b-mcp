@@ -15,7 +15,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const token = getSessionToken(session);
       const client = new ApiClient(token);
 
-      const configService = new ConfigService(args.rootDirectory);
+      const configService = new ConfigService(args.projectRootDirectory);
       const config = configService.getConfig();
 
       if (!config.workspace) {
