@@ -4,6 +4,7 @@ import { ProjectsApi } from './resources/projects.js';
 import { PipelinesApi } from './resources/pipelines.js';
 import { SandboxesApi } from './resources/sandboxes.js';
 import { UserApi } from './resources/user.js';
+import { SourceApi } from './resources/source.js';
 
 /**
  * Options for API requests
@@ -33,6 +34,7 @@ export class ApiError extends Error {
  * Provides organized access to all Buddy API endpoints through scoped properties:
  * - workspaces: Workspace management
  * - projects: Project and repository management
+ * - source: Source control and repository management
  * - pipelines: Pipeline execution and management
  * - sandboxes: Sandbox environment management
  * - user: User and SSH key management
@@ -61,6 +63,7 @@ export class ApiClient {
 
   public readonly workspaces: WorkspacesApi;
   public readonly projects: ProjectsApi;
+  public readonly source: SourceApi;
   public readonly pipelines: PipelinesApi;
   public readonly sandboxes: SandboxesApi;
   public readonly user: UserApi;
@@ -79,19 +82,12 @@ export class ApiClient {
     this.baseUrl = baseUrl;
     this.workspaces = new WorkspacesApi(this);
     this.projects = new ProjectsApi(this);
+    this.source = new SourceApi(this);
     this.pipelines = new PipelinesApi(this);
     this.sandboxes = new SandboxesApi(this);
     this.user = new UserApi(this);
   }
 
-  /**
-   * Internal request method used by all scope classes
-   * Automatically injects the API token into requests
-   *
-   * @param path - API endpoint path
-   * @param options - Request options (method, body, headers)
-   * @returns Promise with typed response
-   */
   async request<T>(path: string, options?: ApiRequestOptions): Promise<T> {
     const {
       method = 'GET',

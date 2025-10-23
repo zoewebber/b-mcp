@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 // Input schema for adding an SSH key
 export const AddSshKeyInputSchema = z.object({
-  title: z.string().describe('Name of the SSH key'),
-  content: z.string().describe('Public key content')
+  title: z.string(),
+  content: z.string()
 });
 
 export type AddSshKeyInput = z.infer<typeof AddSshKeyInputSchema>;

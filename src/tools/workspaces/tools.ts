@@ -16,7 +16,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const client = new ApiClient(token);
 
       const configService = new ConfigService(args.rootDirectory);
-      const [workspace, getError] = await to(client.workspaces.get(args.workspaceDomain));
+      const [workspace, getError] = await to(client.workspaces.get({ workspace: args.workspaceDomain }));
 
       if (getError) {
         throw new UserError(`Provided workspace does not exist.`);
@@ -40,10 +40,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const token = getSessionToken(session);
       const client = new ApiClient(token);
 
-      const [data, getError] = await to(client.workspaces.list());
+      const [data, listError] = await to(client.workspaces.list());
 
-      if (getError) {
-        throw new UserError(`Something went wrong while fetching workspaces: ${getError.message}`);
+      if (listError) {
+        throw new UserError(`Something went wrong while fetching workspaces: ${listError.message}`);
       }
 
       return `Workspaces:\n${JSON.stringify(data?.workspaces?.map(w => ({ domain: w.domain, name: w.name })), null, 2)}`;

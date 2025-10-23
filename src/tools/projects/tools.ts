@@ -25,9 +25,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       if (config.project) {
         throw new UserError('Project is already created.');
       }
-      const [project, createError] = await to(client.projects.create(config.workspace, {
-        display_name: args.projectName
-      }));
+      const [project, createError] = await to(client.projects.create(
+        { workspace: config.workspace },
+        { display_name: args.projectName }
+      ));
 
       if (createError) {
         log.error(createError.message);

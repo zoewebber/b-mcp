@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CreatePipelineInputSchema = z.object({
-  name: z.string().describe('Name of the pipeline'),
+  name: z.string()
 });
 
 export const RunPipelineInputSchema = z.object({
@@ -9,7 +9,7 @@ export const RunPipelineInputSchema = z.object({
     revision: z.string()
   }),
   branch: z.object({
-    name: z.string().describe('Name of the branch'),
+    name: z.string(),
   }).optional(),
   comment: z.string().optional(),
 });
