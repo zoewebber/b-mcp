@@ -8,7 +8,8 @@ export class SandboxesApi {
   constructor(private client: ApiClient) {}
 
   async createByYaml(
-    pathParams: { workspace: string; project: string },
+    pathParams: { workspace: string },
+    queryParams: { project_name: string },
     yaml: string
   ): Promise<SandboxResponse> {
     if (!yaml) {
@@ -16,10 +17,11 @@ export class SandboxesApi {
     }
 
     const response = await this.client.request<SandboxResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/sandboxes/yaml', pathParams),
+      preparePath('/workspaces/:workspace/sandboxes/yaml', pathParams),
       {
         method: 'POST',
         body: { yaml },
+        queryParams,
       }
     );
 
@@ -28,18 +30,21 @@ export class SandboxesApi {
   }
 
   async get(
-    pathParams: { workspace: string; project: string; sandboxId: string }
+    pathParams: { workspace: string; sandboxId: string },
+    queryParams: { project_name: string }
   ): Promise<SandboxResponse> {
     return this.client.request<SandboxResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/sandboxes/:sandboxId', pathParams)
+      preparePath('/workspaces/:workspace/sandboxes/:sandboxId', pathParams),
+      { queryParams }
     );
   }
 
   /**
-   * Wait for a sandbox to be ready (status different from CONFIGURING)
+   * Wait for a sandbox to be ready (status different from INPROGRESS)
    */
   async waitForReady(
-    pathParams: { workspace: string; project: string; sandboxId: string },
+    pathParams: { workspace: string; sandboxId: string },
+    queryParams: { project_name: string },
     options: { pollInterval?: number; timeout?: number } = {}
   ): Promise<SandboxResponse> {
     const {
@@ -51,12 +56,12 @@ export class SandboxesApi {
 
     while (Date.now() - startTime < timeout) {
       // Get current sandbox status
-      const sandbox = await this.get(pathParams);
+      const sandbox = await this.get(pathParams, queryParams);
 
       logger.info(`Sandbox ${pathParams.sandboxId} status: ${sandbox.status}, setup status: ${sandbox.setup_status}`);
 
-      // If sandbox is no longer in CONFIGURING status, return it
-      if (sandbox.setup_status !== 'CONFIGURING') {
+      // If sandbox is no longer in INPROGRESS status, return it
+      if (sandbox.setup_status !== 'INPROGRESS') {
         return sandbox;
       }
 
@@ -64,11 +69,12 @@ export class SandboxesApi {
       await sleep(pollInterval);
     }
 
-    throw new Error(`Timeout waiting for sandbox ${pathParams.sandboxId} to change status from CONFIGURING`);
+    throw new Error(`Timeout waiting for sandbox ${pathParams.sandboxId} to change status from INPROGRESS`);
   }
 
   async updateByYaml(
-    pathParams: { workspace: string; project: string; sandboxId: string },
+    pathParams: { workspace: string; sandboxId: string },
+    queryParams: { project_name: string },
     yaml: string
   ): Promise<SandboxResponse> {
     if (!yaml) {
@@ -76,10 +82,11 @@ export class SandboxesApi {
     }
 
     const response = await this.client.request<SandboxResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/sandboxes/:sandboxId/yaml', pathParams),
+      preparePath('/workspaces/:workspace/sandboxes/:sandboxId/yaml', pathParams),
       {
         method: 'PATCH',
         body: { yaml },
+        queryParams,
       }
     );
 
@@ -88,10 +95,12 @@ export class SandboxesApi {
   }
 
   async getAppLogs(
-    pathParams: { workspace: string; project: string; sandboxId: string }
+    pathParams: { workspace: string; sandboxId: string },
+    queryParams: { project_name: string }
   ): Promise<AppLogsResponse> {
     return this.client.request<AppLogsResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/sandboxes/:sandboxId/app-logs', pathParams)
+      preparePath('/workspaces/:workspace/sandboxes/:sandboxId/app-logs', pathParams),
+      { queryParams }
     );
   }
 
@@ -101,6 +110,7 @@ export class SandboxesApi {
     }
 
     const httpEndpoints = sandbox.endpoints.filter(endpoint => endpoint.type === 'HTTP');
+    logger.debug(`Sandbox generatePreviewUrls: ${JSON.stringify(httpEndpoints, null, 2)}`);
 
     return httpEndpoints.map(endpoint => {
       const regionSubdomain = `${endpoint.region.toLowerCase()}-${endpoint.ssh_settings!.ssh_id}`;

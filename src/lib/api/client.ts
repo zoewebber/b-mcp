@@ -13,6 +13,7 @@ interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   body?: Record<string, unknown>;
   additionalHeaders?: Record<string, string>;
+  queryParams?: Record<string, string>;
 }
 
 /**
@@ -93,14 +94,14 @@ export class ApiClient {
       method = 'GET',
       body,
       additionalHeaders = {},
+      queryParams = {},
     } = options || {};
 
-    // Ensure path starts with / if needed
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    // Remove trailing slash from baseUrl if present
-    const normalizedBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
-
-    const url = `${normalizedBaseUrl}${normalizedPath}`;
+    // Build URL with query parameters using URL class
+    const url = new URL(path, this.baseUrl);
+    Object.entries(queryParams).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
 
     const headers = {
       'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ export class ApiClient {
       requestOptions.body = JSON.stringify(body);
     }
 
-    logger.debug(`API Request: ${method} ${url}`);
+    logger.debug(`API Request: ${method} ${url.toString()}`);
     if (body) {
       logger.debug(`Request body: ${JSON.stringify(body)}`);
     }

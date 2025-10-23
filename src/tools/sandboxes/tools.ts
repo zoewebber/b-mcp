@@ -40,7 +40,8 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generateSandboxYaml(args);
       const [sandbox, createError] = await to(client.sandboxes.createByYaml(
-        { workspace: config.workspace, project: config.project },
+        { workspace: config.workspace },
+        { project_name: config.project },
         base64Yaml
       ));
 
@@ -61,11 +62,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       // Wait for the sandbox to finish setting up
       log.info(`Waiting for sandbox ${sandbox.id} to finish initialization...`);
-      const [readySandbox, waitError] = await to(client.sandboxes.waitForReady({
-        workspace: config.workspace,
-        project: config.project,
-        sandboxId: sandbox.id
-      }));
+      const [readySandbox, waitError] = await to(client.sandboxes.waitForReady(
+        { workspace: config.workspace, sandboxId: sandbox.id },
+        { project_name: config.project }
+      ));
 
       if (waitError) {
         log.error(waitError.message);
@@ -113,7 +113,8 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generateSandboxYaml(args);
       const [sandbox, updateError] = await to(client.sandboxes.updateByYaml(
-        { workspace: config.workspace, project: config.project, sandboxId: config.sandbox },
+        { workspace: config.workspace, sandboxId: config.sandbox },
+        { project_name: config.project },
         base64Yaml
       ));
 
@@ -128,11 +129,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       // Wait for the sandbox to finish setting up
       log.info(`Waiting for sandbox ${config.sandbox} to finish initialization after update...`);
-      const [readySandbox, waitError] = await to(client.sandboxes.waitForReady({
-        workspace: config.workspace,
-        project: config.project,
-        sandboxId: config.sandbox
-      }));
+      const [readySandbox, waitError] = await to(client.sandboxes.waitForReady(
+        { workspace: config.workspace, sandboxId: config.sandbox },
+        { project_name: config.project }
+      ));
 
       if (waitError) {
         log.error(waitError.message);

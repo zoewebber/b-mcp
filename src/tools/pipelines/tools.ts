@@ -42,11 +42,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Pipeline is already created.');
       }
 
-      const [sandbox, sandboxError] = await to(client.sandboxes.get({
-        workspace: config.workspace,
-        project: config.project,
-        sandboxId: config.sandbox
-      }));
+      const [sandbox, sandboxError] = await to(client.sandboxes.get(
+        { workspace: config.workspace, sandboxId: config.sandbox },
+        { project_name: config.project }
+      ));
 
       if (sandboxError) {
         log.error(sandboxError.message);
@@ -115,11 +114,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Pipeline is not created. Please create it first by tool "add-pipeline".');
       }
 
-      const [sandbox, sandboxError] = await to(client.sandboxes.get({
-        workspace: config.workspace,
-        project: config.project,
-        sandboxId: config.sandbox
-      }));
+      const [sandbox, sandboxError] = await to(client.sandboxes.get(
+        { workspace: config.workspace, sandboxId: config.sandbox },
+        { project_name: config.project }
+      ));
 
       if (sandboxError) {
         log.error(sandboxError.message);

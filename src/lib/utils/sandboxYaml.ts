@@ -5,7 +5,7 @@ interface SandboxYamlConfig {
   name: string;
   os: string;
   resources: string;
-  install_commands: string[];
+  install_commands: string;
   app_type: string;
   run_command: string;
   app_dir: string;
@@ -31,8 +31,8 @@ export function generateSandboxYaml(params: SandboxParams): string {
     sandbox: params.identifier,
     name: params.name,
     os: 'ubuntu:24.04',
-    resources: 'XLARGE',
-    install_commands: params.installCommands,
+    resources: '6x12',
+    install_commands: params.installCommands.join('\n'),
     app_type: 'CMD',
     run_command: params.appRunCommand,
     app_dir: params.appPath,

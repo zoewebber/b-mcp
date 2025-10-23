@@ -202,11 +202,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       if (config.appType === 'dynamic') {
         log.info(`Checking app status for sandbox ${config.sandbox}...`);
 
-        const [sandbox, sandboxError] = await to(client.sandboxes.get({
-          workspace: config.workspace,
-          project: config.project,
-          sandboxId: config.sandbox
-        }));
+        const [sandbox, sandboxError] = await to(client.sandboxes.get(
+          { workspace: config.workspace, sandboxId: config.sandbox },
+          { project_name: config.project }
+        ));
 
         if (sandboxError) {
           log.error(sandboxError.message);
@@ -217,11 +216,10 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         if (sandbox && sandbox.app_status && sandbox.app_status === 'FAILED') {
           log.info('App status is FAILED, retrieving app logs...');
 
-          const [appLogs, logsError] = await to(client.sandboxes.getAppLogs({
-            workspace: config.workspace,
-            project: config.project,
-            sandboxId: config.sandbox
-          }));
+          const [appLogs, logsError] = await to(client.sandboxes.getAppLogs(
+            { workspace: config.workspace, sandboxId: config.sandbox },
+            { project_name: config.project }
+          ));
 
           if (logsError) {
             log.error(logsError.message);
@@ -244,7 +242,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
           throw new UserError(`Execution finished successfully, but I'm unable to get preview url: ${actionExecutionError.message}`);
         }
 
-        const packageUrl = publishPackageActionExecution?.outputted_variables?.find(v => v.key === 'BUDDY_PACKAGE_ACTION_VERSION_URL')?.value;
+        const packageUrl = publishPackageActionExecution?.outputted_variables?.find(v => v.key === 'BUDDY_PACKAGE_URL')?.value;
         if (!packageUrl) {
           throw new UserError(`Execution finished successfully, but I'm unable to get preview url. Please check the pipeline logs for more details.`);
         }
