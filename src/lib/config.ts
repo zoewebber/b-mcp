@@ -9,7 +9,7 @@ export interface ProjectConfig {
   sandbox: string;
 }
 
-export class ConfigService {
+export class Config {
   private readonly configPath: string;
 
   constructor(mainDirectoryPath: string) {

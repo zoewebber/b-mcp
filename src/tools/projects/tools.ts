@@ -1,10 +1,10 @@
 import { FastMCP, UserError } from 'fastmcp';
 import { AddProjectParams } from './types.js';
-import { ConfigService } from '../../services/config.js';
+import { Config } from '../../lib/config.js';
 import { ApiClient } from '../../lib/api/client.js';
 import { MCPSession } from '../../types/server.js';
-import getSessionToken from '../../lib/getSessionToken.js';
-import { to } from '../../lib/to';
+import getSessionToken from '../../lib/utils/getSessionToken.js';
+import { to } from '../../lib/utils/to';
 
 const registerTools = (server: FastMCP<MCPSession>) => {
   server.addTool({
@@ -15,7 +15,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const token = getSessionToken(session);
       const client = new ApiClient(token);
 
-      const configService = new ConfigService(args.projectRootDirectory);
+      const configService = new Config(args.projectRootDirectory);
       const config = configService.getConfig();
 
       if (!config.workspace) {

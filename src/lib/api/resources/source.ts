@@ -1,6 +1,6 @@
 import logger from '../../logger.js';
-import { to } from '../../to.js';
-import sleep from '../../sleep.js';
+import { to } from '../../utils/to.js';
+import sleep from '../../utils/sleep.js';
 import { CommitResponse } from '../../../types/api/projects.js';
 import type { ApiClient } from '../client.js';
 import { ApiError } from '../client.js';

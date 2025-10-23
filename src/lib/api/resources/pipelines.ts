@@ -1,6 +1,6 @@
 import logger from '../../logger.js';
 import { ActionExecutionResponse, CreatePipelineInput, CreatePipelineInputSchema, PipelineExecutionResponse, PipelineResponse, RunPipelineInput, RunPipelineInputSchema } from '../../../types/api/pipelines.js';
-import sleep from '../../sleep.js';
+import sleep from '../../utils/sleep.js';
 import type { ApiClient } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
 

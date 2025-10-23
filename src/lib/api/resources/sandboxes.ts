@@ -1,6 +1,6 @@
 import logger from '../../logger.js';
 import { AppLogsResponse, SandboxResponse } from '../../../types/api/sandboxes.js';
-import sleep from '../../sleep.js';
+import sleep from '../../utils/sleep.js';
 import type { ApiClient } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
 

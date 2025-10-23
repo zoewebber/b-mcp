@@ -1,4 +1,4 @@
-import { MCPSession } from '../types/server.js';
+import { MCPSession } from '../../types/server.js';
 
 const getSessionToken = (session?: MCPSession) => {
   return session?.token || '';
