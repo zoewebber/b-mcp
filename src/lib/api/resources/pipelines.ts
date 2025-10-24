@@ -3,18 +3,20 @@ import { ActionExecutionResponse, CreatePipelineInput, CreatePipelineInputSchema
 import sleep from '../../utils/sleep.js';
 import type { ApiClient } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
+import { validateParams } from '../utils/validateParams.js';
 
 export class PipelinesApi {
   constructor(private client: ApiClient) {}
 
   async create(
-    pathParams: { workspace: string; project: string },
+    params: { workspace: string; project_name: string },
     pipelineData: CreatePipelineInput
   ): Promise<PipelineResponse> {
+    validateParams(params, ['workspace', 'project_name']);
     const validatedData = CreatePipelineInputSchema.parse(pipelineData);
 
     return this.client.request<PipelineResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines', pathParams),
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines', params),
       {
         method: 'POST',
         body: validatedData,
@@ -23,11 +25,13 @@ export class PipelinesApi {
   }
 
   async updateByYaml(
-    pathParams: { workspace: string; project: string; pipelineId: number },
+    params: { workspace: string; project_name: string; pipeline_id: number },
     yaml: string
   ): Promise<PipelineResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id']);
+
     return this.client.request<PipelineResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines/:pipelineId/yaml', pathParams),
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines/:pipeline_id/yaml', params),
       {
         method: 'PATCH',
         body: { yaml },
@@ -36,40 +40,48 @@ export class PipelinesApi {
   }
 
   async get(
-    pathParams: { workspace: string; project: string; pipelineId: number }
+    params: { workspace: string; project_name: string; pipeline_id: number }
   ): Promise<PipelineResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id']);
+
     return this.client.request<PipelineResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines/:pipelineId', pathParams)
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines/:pipeline_id', params)
     );
   }
 
   async getExecution(
-    pathParams: { workspace: string; project: string; pipelineId: number; executionId: number }
+    params: { workspace: string; project_name: string; pipeline_id: number; execution_id: number }
   ): Promise<PipelineExecutionResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id', 'execution_id']);
+
     return this.client.request<PipelineExecutionResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines/:pipelineId/executions/:executionId', pathParams)
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines/:pipeline_id/executions/:execution_id', params)
     );
   }
 
   async getActionExecution(
-    pathParams: { workspace: string; project: string; pipelineId: number; executionId: number; actionExecutionId: string }
+    params: { workspace: string; project_name: string; pipeline_id: number; execution_id: number; action_execution_id: string }
   ): Promise<ActionExecutionResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id', 'execution_id', 'action_execution_id']);
+
     return this.client.request<ActionExecutionResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines/:pipelineId/executions/:executionId/action_executions/:actionExecutionId', pathParams)
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines/:pipeline_id/executions/:execution_id/action_executions/:action_execution_id', params)
     );
   }
 
   /**
    * Get details for all failed or terminated actions in an execution
    *
-   * @param pathParams - Object containing workspace, project, and pipelineId
+   * @param params - Object containing workspace, project_name, and pipeline_id
    * @param execution - The execution object
    * @returns ActionExecutionResponse or null if no failed action found
    */
   async getFailedActionExecution(
-    pathParams: { workspace: string; project: string; pipelineId: number },
+    params: { workspace: string; project_name: string; pipeline_id: number },
     execution: PipelineExecutionResponse
   ): Promise<ActionExecutionResponse | null> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id']);
+
     if (!execution || !execution.id) {
       throw new Error('Valid execution object is required');
     }
@@ -85,23 +97,25 @@ export class PipelinesApi {
     }
 
     return this.getActionExecution({
-      ...pathParams,
-      executionId: execution.id,
-      actionExecutionId: failedActionsExecution.action_execution_id
+      ...params,
+      execution_id: execution.id,
+      action_execution_id: failedActionsExecution.action_execution_id
     });
   }
 
   /**
    * Get details for publish package version action in an execution
    *
-   * @param pathParams - Object containing workspace, project, and pipelineId
+   * @param params - Object containing workspace, project_name, and pipeline_id
    * @param execution - The execution object
    * @returns ActionExecutionResponse or null if no publish package action found
    */
   async getPublishPackageVersionActionExecution(
-    pathParams: { workspace: string; project: string; pipelineId: number },
+    params: { workspace: string; project_name: string; pipeline_id: number },
     execution: PipelineExecutionResponse
   ): Promise<ActionExecutionResponse | null> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id']);
+
     if (!execution || !execution.id) {
       throw new Error('Valid execution object is required');
     }
@@ -112,9 +126,9 @@ export class PipelinesApi {
     }
 
     return this.getActionExecution({
-      ...pathParams,
-      executionId: execution.id,
-      actionExecutionId: publishPackageActionExecution.action_execution_id
+      ...params,
+      execution_id: execution.id,
+      action_execution_id: publishPackageActionExecution.action_execution_id
     });
   }
 
@@ -122,9 +136,11 @@ export class PipelinesApi {
    * Wait for a pipeline execution to complete (status different from ENQUEUED or INPROGRESS)
    */
   async waitForExecution(
-    pathParams: { workspace: string; project: string; pipelineId: number; executionId: number },
+    params: { workspace: string; project_name: string; pipeline_id: number; execution_id: number },
     options: { pollInterval?: number; timeout?: number } = {}
   ): Promise<PipelineExecutionResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id', 'execution_id']);
+
     const {
       pollInterval = 5000, // Default poll interval: 5 seconds
       timeout = 600000     // Default timeout: 10 minutes
@@ -135,9 +151,9 @@ export class PipelinesApi {
 
     while (Date.now() - startTime < timeout) {
       // Get current execution status
-      const execution = await this.getExecution(pathParams);
+      const execution = await this.getExecution(params);
 
-      logger.info(`Execution ${pathParams.executionId} status: ${execution.status}`);
+      logger.info(`Execution ${params.execution_id} status: ${execution.status}`);
 
       // If execution is done, return it
       if (!IN_PROGRESS_STATUSES.includes(execution.status)) {
@@ -148,17 +164,18 @@ export class PipelinesApi {
       await sleep(pollInterval);
     }
 
-    throw new Error(`Timeout waiting for execution ${pathParams.executionId} to complete`);
+    throw new Error(`Timeout waiting for execution ${params.execution_id} to complete`);
   }
 
   async run(
-    pathParams: { workspace: string; project: string; pipelineId: number },
+    params: { workspace: string; project_name: string; pipeline_id: number },
     executionData: RunPipelineInput
   ): Promise<PipelineExecutionResponse> {
+    validateParams(params, ['workspace', 'project_name', 'pipeline_id']);
     const validatedData = RunPipelineInputSchema.parse(executionData);
 
     return this.client.request<PipelineExecutionResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/pipelines/:pipelineId/executions', pathParams),
+      preparePath('/workspaces/:workspace/projects/:project_name/pipelines/:pipeline_id/executions', params),
       {
         method: 'POST',
         body: validatedData,

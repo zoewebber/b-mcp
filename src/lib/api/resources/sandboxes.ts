@@ -3,18 +3,23 @@ import { AppLogsResponse, SandboxResponse } from '../../../types/api/sandboxes.j
 import sleep from '../../utils/sleep.js';
 import type { ApiClient } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
+import { splitParams } from '../utils/splitParams.js';
+import { validateParams } from '../utils/validateParams.js';
 
 export class SandboxesApi {
   constructor(private client: ApiClient) {}
 
   async createByYaml(
-    pathParams: { workspace: string },
-    queryParams: { project_name: string },
+    params: { workspace: string; project_name: string },
     yaml: string
   ): Promise<SandboxResponse> {
+    validateParams(params, ['workspace', 'project_name']);
+
     if (!yaml) {
       throw new Error('YAML configuration is required');
     }
+
+    const { pathParams, queryParams } = splitParams(params, ['workspace']);
 
     const response = await this.client.request<SandboxResponse>(
       preparePath('/workspaces/:workspace/sandboxes/yaml', pathParams),
@@ -30,11 +35,14 @@ export class SandboxesApi {
   }
 
   async get(
-    pathParams: { workspace: string; sandboxId: string },
-    queryParams: { project_name: string }
+    params: { workspace: string; sandbox_id: string; project_name: string }
   ): Promise<SandboxResponse> {
+    validateParams(params, ['workspace', 'sandbox_id', 'project_name']);
+
+    const { pathParams, queryParams } = splitParams(params, ['workspace', 'sandbox_id']);
+
     return this.client.request<SandboxResponse>(
-      preparePath('/workspaces/:workspace/sandboxes/:sandboxId', pathParams),
+      preparePath('/workspaces/:workspace/sandboxes/:sandbox_id', pathParams),
       { queryParams }
     );
   }
@@ -43,10 +51,11 @@ export class SandboxesApi {
    * Wait for a sandbox to be ready (status different from INPROGRESS)
    */
   async waitForReady(
-    pathParams: { workspace: string; sandboxId: string },
-    queryParams: { project_name: string },
+    params: { workspace: string; sandbox_id: string; project_name: string },
     options: { pollInterval?: number; timeout?: number } = {}
   ): Promise<SandboxResponse> {
+    validateParams(params, ['workspace', 'sandbox_id', 'project_name']);
+
     const {
       pollInterval = 5000, // Default poll interval: 5 seconds
       timeout = 600000     // Default timeout: 10 minutes
@@ -56,9 +65,9 @@ export class SandboxesApi {
 
     while (Date.now() - startTime < timeout) {
       // Get current sandbox status
-      const sandbox = await this.get(pathParams, queryParams);
+      const sandbox = await this.get(params);
 
-      logger.info(`Sandbox ${pathParams.sandboxId} status: ${sandbox.status}, setup status: ${sandbox.setup_status}`);
+      logger.info(`Sandbox ${params.sandbox_id} status: ${sandbox.status}, setup status: ${sandbox.setup_status}`);
 
       // If sandbox is no longer in INPROGRESS status, return it
       if (sandbox.setup_status !== 'INPROGRESS') {
@@ -69,20 +78,23 @@ export class SandboxesApi {
       await sleep(pollInterval);
     }
 
-    throw new Error(`Timeout waiting for sandbox ${pathParams.sandboxId} to change status from INPROGRESS`);
+    throw new Error(`Timeout waiting for sandbox ${params.sandbox_id} to change status from INPROGRESS`);
   }
 
   async updateByYaml(
-    pathParams: { workspace: string; sandboxId: string },
-    queryParams: { project_name: string },
+    params: { workspace: string; sandbox_id: string; project_name: string },
     yaml: string
   ): Promise<SandboxResponse> {
+    validateParams(params, ['workspace', 'sandbox_id', 'project_name']);
+
     if (!yaml) {
       throw new Error('YAML configuration is required');
     }
 
+    const { pathParams, queryParams } = splitParams(params, ['workspace', 'sandbox_id']);
+
     const response = await this.client.request<SandboxResponse>(
-      preparePath('/workspaces/:workspace/sandboxes/:sandboxId/yaml', pathParams),
+      preparePath('/workspaces/:workspace/sandboxes/:sandbox_id/yaml', pathParams),
       {
         method: 'PATCH',
         body: { yaml },
@@ -95,11 +107,14 @@ export class SandboxesApi {
   }
 
   async getAppLogs(
-    pathParams: { workspace: string; sandboxId: string },
-    queryParams: { project_name: string }
+    params: { workspace: string; sandbox_id: string; project_name: string }
   ): Promise<AppLogsResponse> {
+    validateParams(params, ['workspace', 'sandbox_id', 'project_name']);
+
+    const { pathParams, queryParams } = splitParams(params, ['workspace', 'sandbox_id']);
+
     return this.client.request<AppLogsResponse>(
-      preparePath('/workspaces/:workspace/sandboxes/:sandboxId/app-logs', pathParams),
+      preparePath('/workspaces/:workspace/sandboxes/:sandbox_id/app-logs', pathParams),
       { queryParams }
     );
   }

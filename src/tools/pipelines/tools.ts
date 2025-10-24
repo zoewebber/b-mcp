@@ -43,8 +43,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       const [sandbox, sandboxError] = await to(client.sandboxes.get(
-        { workspace: config.workspace, sandboxId: config.sandbox },
-        { project_name: config.project }
+        { workspace: config.workspace, sandbox_id: config.sandbox, project_name: config.project }
       ));
 
       if (sandboxError) {
@@ -53,7 +52,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       const [pipeline, createPipelineError] = await to(client.pipelines.create(
-        { workspace: config.workspace, project: config.project },
+        { workspace: config.workspace, project_name: config.project },
         { name: args.pipelineName }
       ));
 
@@ -67,7 +66,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generatePipelineYaml(args, sandbox!.identifier);
       const [, updateError] = await to(client.pipelines.updateByYaml(
-        { workspace: config.workspace, project: config.project, pipelineId: pipeline.id },
+        { workspace: config.workspace, project_name: config.project, pipeline_id: pipeline.id },
         base64Yaml
       ));
 
@@ -115,8 +114,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       const [sandbox, sandboxError] = await to(client.sandboxes.get(
-        { workspace: config.workspace, sandboxId: config.sandbox },
-        { project_name: config.project }
+        { workspace: config.workspace, sandbox_id: config.sandbox, project_name: config.project }
       ));
 
       if (sandboxError) {
@@ -126,7 +124,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generatePipelineYaml(args, sandbox!.identifier);
       const [, updateError] = await to(client.pipelines.updateByYaml(
-        { workspace: config.workspace, project: config.project, pipelineId: config.pipeline },
+        { workspace: config.workspace, project_name: config.project, pipeline_id: config.pipeline },
         base64Yaml
       ));
 
@@ -170,7 +168,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       const [pipeline, createPipelineError] = await to(client.pipelines.create(
-        { workspace: config.workspace, project: config.project },
+        { workspace: config.workspace, project_name: config.project },
         { name: args.pipelineName }
       ));
 
@@ -184,7 +182,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generateStaticPipelineYaml(args);
       const [, updateError] = await to(client.pipelines.updateByYaml(
-        { workspace: config.workspace, project: config.project, pipelineId: pipeline.id },
+        { workspace: config.workspace, project_name: config.project, pipeline_id: pipeline.id },
         base64Yaml
       ));
 
@@ -229,7 +227,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const base64Yaml = generateStaticPipelineYaml(args);
       const [, updateError] = await to(client.pipelines.updateByYaml(
-        { workspace: config.workspace, project: config.project, pipelineId: config.pipeline },
+        { workspace: config.workspace, project_name: config.project, pipeline_id: config.pipeline },
         base64Yaml
       ));
 

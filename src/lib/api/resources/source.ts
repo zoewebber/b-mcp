@@ -5,13 +5,16 @@ import { CommitResponse } from '../../../types/api/projects.js';
 import type { ApiClient } from '../client.js';
 import { ApiError } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
+import { validateParams } from '../utils/validateParams.js';
 
 export class SourceApi {
   constructor(private client: ApiClient) {}
 
-  async getCommit(pathParams: { workspace: string; project: string; revision: string }): Promise<CommitResponse> {
+  async getCommit(params: { workspace: string; project_name: string; revision: string }): Promise<CommitResponse> {
+    validateParams(params, ['workspace', 'project_name', 'revision']);
+
     return this.client.request<CommitResponse>(
-      preparePath('/workspaces/:workspace/projects/:project/repository/commits/:revision', pathParams)
+      preparePath('/workspaces/:workspace/projects/:project_name/repository/commits/:revision', params)
     );
   }
 
@@ -20,13 +23,15 @@ export class SourceApi {
    * Will poll the API with exponential backoff until the commit is found or timeout is reached
    */
   async waitForCommit(
-    pathParams: { workspace: string; project: string; revision: string },
+    params: { workspace: string; project_name: string; revision: string },
     options: {
       maxAttempts?: number;
       initialDelayMs?: number;
       maxDelayMs?: number;
     } = {}
   ): Promise<CommitResponse> {
+    validateParams(params, ['workspace', 'project_name', 'revision']);
+
     const {
       maxAttempts = 10,
       initialDelayMs = 1000,
@@ -40,7 +45,7 @@ export class SourceApi {
       attempts++;
 
       // Check if the commit exists
-      const [commit, error] = await to(this.getCommit(pathParams));
+      const [commit, error] = await to(this.getCommit(params));
 
       // If found, return it
       if (commit && !error) {
@@ -52,7 +57,7 @@ export class SourceApi {
         throw error;
       }
 
-      logger.info(`Commit ${pathParams.revision.substring(0, 8)} not yet found in Buddy repository. Attempt ${attempts}/${maxAttempts}, waiting ${delay}ms before next check...`);
+      logger.info(`Commit ${params.revision.substring(0, 8)} not yet found in Buddy repository. Attempt ${attempts}/${maxAttempts}, waiting ${delay}ms before next check...`);
 
       await sleep(delay);
 
@@ -60,6 +65,6 @@ export class SourceApi {
       delay = Math.min(delay * 2, maxDelayMs);
     }
 
-    throw new Error(`Timeout reached: Commit ${pathParams.revision} was not found in repository after ${maxAttempts} attempts`);
+    throw new Error(`Timeout reached: Commit ${params.revision} was not found in repository after ${maxAttempts} attempts`);
   }
 }

@@ -31,7 +31,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const [project, projectError] = await to(client.projects.get({
         workspace: config.workspace,
-        project: config.project
+        project_name: config.project
       }));
 
       if (projectError || !project) {
@@ -133,7 +133,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
         const [, commitError] = await to(client.source.waitForCommit({
           workspace: config.workspace,
-          project: config.project,
+          project_name: config.project,
           revision: commitHash
         }));
 
@@ -146,7 +146,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       const [execution, executionError] = await to(client.pipelines.run(
-        { workspace: config.workspace, project: config.project, pipelineId: config.pipeline },
+        { workspace: config.workspace, project_name: config.project, pipeline_id: config.pipeline },
         {
           to_revision: {
             revision: commitHash
@@ -162,9 +162,9 @@ const registerTools = (server: FastMCP<MCPSession>) => {
 
       const [finishedExecution, waitForError] = await to(client.pipelines.waitForExecution({
         workspace: config.workspace,
-        project: config.project,
-        pipelineId: config.pipeline,
-        executionId: execution!.id
+        project_name: config.project,
+        pipeline_id: config.pipeline,
+        execution_id: execution!.id
       }));
 
       if (waitForError) {
@@ -175,7 +175,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       if (finishedExecution!.status === 'FAILED') {
         // Try to get details for failed actions
         const [failedActionExecution, actionError] = await to(client.pipelines.getFailedActionExecution(
-          { workspace: config.workspace, project: config.project, pipelineId: config.pipeline },
+          { workspace: config.workspace, project_name: config.project, pipeline_id: config.pipeline },
           finishedExecution!
         ));
 
@@ -203,8 +203,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         log.info(`Checking app status for sandbox ${config.sandbox}...`);
 
         const [sandbox, sandboxError] = await to(client.sandboxes.get(
-          { workspace: config.workspace, sandboxId: config.sandbox },
-          { project_name: config.project }
+          { workspace: config.workspace, sandbox_id: config.sandbox, project_name: config.project }
         ));
 
         if (sandboxError) {
@@ -217,8 +216,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
           log.info('App status is FAILED, retrieving app logs...');
 
           const [appLogs, logsError] = await to(client.sandboxes.getAppLogs(
-            { workspace: config.workspace, sandboxId: config.sandbox },
-            { project_name: config.project }
+            { workspace: config.workspace, sandbox_id: config.sandbox, project_name: config.project }
           ));
 
           if (logsError) {
@@ -233,7 +231,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         return `Successfully deployed application to Buddy. You can check your application at the following URL:\n${urls[0]}`;
       } else if (config.appType === 'static') {
         const [publishPackageActionExecution, actionExecutionError] = await to(client.pipelines.getPublishPackageVersionActionExecution(
-          { workspace: config.workspace, project: config.project, pipelineId: config.pipeline },
+          { workspace: config.workspace, project_name: config.project, pipeline_id: config.pipeline },
           finishedExecution!
         ));
 

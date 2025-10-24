@@ -1,6 +1,7 @@
 import { WorkspaceResponse, WorkspacesResponse } from '../../../types/api/workspaces.js';
 import type { ApiClient } from '../client.js';
 import { preparePath } from '../utils/preparePath.js';
+import { validateParams } from '../utils/validateParams.js';
 
 export class WorkspacesApi {
   constructor(private client: ApiClient) {}
@@ -9,9 +10,11 @@ export class WorkspacesApi {
     return this.client.request<WorkspacesResponse>('/workspaces');
   }
 
-  async get(pathParams: { workspace: string }): Promise<WorkspaceResponse> {
+  async get(params: { workspace: string }): Promise<WorkspaceResponse> {
+    validateParams(params, ['workspace']);
+
     return this.client.request<WorkspaceResponse>(
-      preparePath('/workspaces/:workspace', pathParams)
+      preparePath('/workspaces/:workspace', params)
     );
   }
 }
