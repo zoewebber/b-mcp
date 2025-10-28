@@ -14,8 +14,8 @@ export const SshKeyResponseSchema = z.object({
   title: z.string(),
   content: z.string().optional(),
   fingerprint: z.string().optional(),
-  created_date: z.iso.date(),
-  html_url: z.url().optional()
+  created_date: z.string().datetime(),
+  html_url: z.string().url().optional()
 });
 
 export type SshKeyResponse = z.infer<typeof SshKeyResponseSchema>;

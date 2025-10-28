@@ -26,11 +26,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'static') {
+      if (args.appType === 'static') {
         throw new UserError('If you want to deploy static application, please use tool "add-pipeline-static".');
       }
 
@@ -62,6 +58,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       config.pipeline = pipeline.id;
+      config.appType = 'dynamic';
       configService.updateConfig(config);
 
       const base64Yaml = generatePipelineYaml(args, sandbox!.identifier);
@@ -97,11 +94,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'static') {
+      if (args.appType === 'static') {
         throw new UserError('If you want to deploy static application, please use tool "add-pipeline-static".');
       }
 
@@ -155,11 +148,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'dynamic') {
+      if (args.appType === 'dynamic') {
         throw new UserError('If you want to deploy dynamic application, please use tool "add-pipeline".');
       }
 
@@ -178,6 +167,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       }
 
       config.pipeline = pipeline.id;
+      config.appType = 'static';
       configService.updateConfig(config);
 
       const base64Yaml = generateStaticPipelineYaml(args);
@@ -213,11 +203,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'dynamic') {
+      if (args.appType === 'dynamic') {
         throw new UserError('If you want to deploy dynamic application, please use tool "add-pipeline-dynamic".');
       }
 

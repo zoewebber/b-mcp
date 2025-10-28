@@ -26,11 +26,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'static') {
+      if (args.appType === 'static') {
         throw new UserError('Static application does not require sandbox. Please run "deploy" tool to deploy your static application.');
       }
 
@@ -57,6 +53,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       configService.updateConfig({
         ...config,
         sandbox: sandbox.id,
+        appType: 'dynamic',
       });
 
       // Wait for the sandbox to finish setting up
@@ -97,11 +94,7 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError('Project is not created. Please create it first by tool "add-project".');
       }
 
-      if (!config.appType) {
-        throw new UserError('Application type is not set. Please set it first by tool "deploy".');
-      }
-
-      if (config.appType === 'static') {
+      if (args.appType === 'static') {
         throw new UserError('Static application does not require sandbox. Please run "deploy" tool to deploy your static application.');
       }
 

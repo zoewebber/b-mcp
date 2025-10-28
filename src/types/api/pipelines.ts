@@ -15,8 +15,8 @@ export const RunPipelineInputSchema = z.object({
 });
 
 export const PipelineResponseSchema = z.object({
-  url: z.url(),
-  html_url: z.url(),
+  url: z.string().url(),
+  html_url: z.string().url(),
   id: z.number(),
   name: z.string(),
   on: z.string().optional(), // trigger type
@@ -25,11 +25,11 @@ export const PipelineResponseSchema = z.object({
   auto_clear_cache: z.boolean().optional(),
   no_skip_to_recent: z.boolean().optional(),
   do_not_create_commit_status: z.boolean().optional(),
-  start_date: z.iso.date().optional(),
-  last_execution_date: z.iso.date().optional(),
+  start_date: z.string().datetime().optional(),
+  last_execution_date: z.string().datetime().optional(),
   last_execution_status: z.string().optional(),
-  created_date: z.iso.date(),
-  create_date: z.iso.date().optional(), // Alternative date format in some APIs
+  created_date: z.string().datetime(),
+  create_date: z.string().datetime().optional(), // Alternative date format in some APIs
   disabled: z.boolean().optional(),
   priority: z.string().optional(),
   execution_message_template: z.string().optional()
@@ -43,21 +43,21 @@ export const ActionExecutionResponseSchema = z.object({
     id: z.number(),
     name: z.string(),
     type: z.string(),
-    url: z.url(),
-    html_url: z.url()
+    url: z.string().url(),
+    html_url: z.string().url()
   }),
-  start_date: z.iso.date(),
-  finish_date: z.iso.date(),
+  start_date: z.string().datetime(),
+  finish_date: z.string().datetime(),
   log: z.array(z.string()),
   outputted_variables: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
 });
 
 export const PipelineExecutionResponseSchema = z.object({
-  url: z.url(),
-  html_url: z.url().optional(),
+  url: z.string().url(),
+  html_url: z.string().url().optional(),
   id: z.number(),
-  start_date: z.iso.date().optional(),
-  finish_date: z.iso.date().optional(),
+  start_date: z.string().datetime().optional(),
+  finish_date: z.string().datetime().optional(),
   status: z.string(),
   comment: z.string().optional(),
   branch: z.object({

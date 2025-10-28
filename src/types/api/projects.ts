@@ -10,22 +10,22 @@ export const CreateProjectInputSchema = z.object({
 });
 
 export const UserSchema = z.object({
-  url: z.url(),
-  html_url: z.url(),
+  url: z.string().url(),
+  html_url: z.string().url(),
   id: z.number(),
   name: z.string(),
-  avatar_url: z.url()
+  avatar_url: z.string().url()
 });
 
 export const ProjectResponseSchema = z.object({
-  url: z.url(),
-  html_url: z.url(),
+  url: z.string().url(),
+  html_url: z.string().url(),
   name: z.string(),
   display_name: z.string().optional(),
   status: z.string(),
-  create_date: z.iso.date(),
+  create_date: z.string().datetime(),
   created_by: UserSchema,
-  http_repository: z.url(),
+  http_repository: z.string().url(),
   ssh_repository: z.string(),
   default_branch: z.string(),
   access: z.enum(['PUBLIC', 'PRIVATE']),
@@ -36,14 +36,14 @@ export const ProjectResponseSchema = z.object({
 
 
 export const CommitResponseSchema = z.object({
-  url: z.url(),
-  html_url: z.url().optional(),
+  url: z.string().url(),
+  html_url: z.string().url().optional(),
   revision: z.string(),
   short_revision: z.string(),
   author_name: z.string(),
   author_email: z.string().email(),
   message: z.string(),
-  create_date: z.iso.date()
+  create_date: z.string().datetime()
 });
 
 

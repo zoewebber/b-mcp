@@ -25,7 +25,7 @@ Do not attempt to set up a sandbox until a project is created or identified. Do 
       token,
     };
   },
-  logger
+  logger,
 });
 
 registerTools(server);

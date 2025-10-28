@@ -11,7 +11,7 @@ import { to } from '../../lib/utils/to.js';
 const registerTools = (server: FastMCP<MCPSession>) => {
   server.addTool({
     name: 'deploy',
-    description: 'Deploys application to Buddy platform by committing changes, pushing to repository, and triggering pipeline execution. Required for deploying code modifications.',
+    description: 'Deploys application to Buddy platform',
     parameters: DeployParams,
     execute: async (args, { log, session }) => {
       const token = getSessionToken(session);
