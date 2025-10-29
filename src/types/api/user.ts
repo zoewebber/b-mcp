@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+// Response schema for user
+export const UserResponseSchema = z.object({
+  url: z.string().url(),
+  html_url: z.string().url(),
+  id: z.number(),
+  name: z.string(),
+  avatar_url: z.string().url(),
+  workspaces_url: z.string().url()
+});
+
+export type UserResponse = z.infer<typeof UserResponseSchema>;
+
 // Input schema for adding an SSH key
 export const AddSshKeyInputSchema = z.object({
   title: z.string(),

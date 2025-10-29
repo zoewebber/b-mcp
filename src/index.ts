@@ -2,6 +2,8 @@ import { FastMCP } from 'fastmcp';
 import logger from './lib/logger.js';
 import registerTools from './tools/index.js';
 import { MCPSession } from './types/server.js';
+import { ApiClient } from './lib/api/client';
+import { to } from './lib/utils/to';
 
 const server = new FastMCP<MCPSession>({
   name: 'Buddy Sandbox MCP',
@@ -27,25 +29,29 @@ Do not attempt to set up a sandbox until a project is created or identified. Do 
       registrationEndpoint: 'https://api.local.io/auth/register',
       responseTypesSupported: ['code'],
       grantTypesSupported: ['authorization_code', 'refresh_token'],
+      codeChallengeMethodsSupported: ['S256'],
+      scopesSupported: ['USER_INFO', 'WORKSPACE']
     },
     protectedResource: {
-      resource: 'mcp://buddy-sandbox-mcp',
-      authorizationServers: ['https://api.local.io'],
+      resource: 'http://localhost:8080',
+      authorizationServers: ['http://localhost:8080'],
     },
   },
   authenticate: async (request) => {
     const token = (request.headers['authorization'] || '').replaceAll('Bearer ', '') as string;
 
-
     if (!token) {
-      return {
-        authenticated: false,
-        error: 'Not authorized',
-      };
+      throw new Error('Unauthorized');
+    }
+
+    const client = new ApiClient(token);
+    const [user, error] = await to(client.user.getUser());
+    if (error || !user) {
+      throw new Error('Unauthorized');
     }
 
     return {
-      authenticated: true,
+      user,
       token,
     };
   },
