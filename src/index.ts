@@ -19,7 +19,8 @@ I am a deployment assistant for the Buddy platform. I help users deploy their ap
 Do not attempt to set up a sandbox until a project is created or identified. Do not attempt to configure a pipeline until a sandbox is set up. Following this strict order is essential for successful deployment.
 `,
   authenticate: async (request) => {
-    const token = (request.headers['token'] || '') as string;
+    const token = (request.headers['authorization'] || '').replaceAll('Bearer ', '') as string;
+
 
     return {
       token,

@@ -74,10 +74,7 @@ export class ApiClient {
    * @param token - Buddy API token for authentication
    */
   constructor(token: string) {
-    const baseUrl = process.env.BUDDY_API_URL;
-    if (!baseUrl) {
-      throw new Error('BUDDY_API_URL environment variable is not set');
-    }
+    const baseUrl = process.env.BUDDY_API_URL || 'https://api.buddy.works';
 
     this.token = token;
     this.baseUrl = baseUrl;
