@@ -1,4 +1,5 @@
-export interface MCPSession {
-  token: string;
-  [key: string]: any;
-}
+export type MCPSession = {
+  authenticated: boolean;
+  token?: string;
+  error?: string;
+};

@@ -18,11 +18,34 @@ I am a deployment assistant for the Buddy platform. I help users deploy their ap
 
 Do not attempt to set up a sandbox until a project is created or identified. Do not attempt to configure a pipeline until a sandbox is set up. Following this strict order is essential for successful deployment.
 `,
+  oauth: {
+    enabled: true,
+    authorizationServer: {
+      issuer: 'https://api.local.io',
+      authorizationEndpoint: 'https://api.local.io/oauth2/authorize',
+      tokenEndpoint: 'https://api.local.io/oauth2/token',
+      registrationEndpoint: 'https://api.local.io/auth/register',
+      responseTypesSupported: ['code'],
+      grantTypesSupported: ['authorization_code', 'refresh_token'],
+    },
+    protectedResource: {
+      resource: 'mcp://buddy-sandbox-mcp',
+      authorizationServers: ['https://api.local.io'],
+    },
+  },
   authenticate: async (request) => {
     const token = (request.headers['authorization'] || '').replaceAll('Bearer ', '') as string;
 
 
+    if (!token) {
+      return {
+        authenticated: false,
+        error: 'Not authorized',
+      };
+    }
+
     return {
+      authenticated: true,
       token,
     };
   },
@@ -36,7 +59,7 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 
 server.start({
   httpStream: {
-    port: PORT
+    port: PORT,
   },
   transportType: 'httpStream',
 });
