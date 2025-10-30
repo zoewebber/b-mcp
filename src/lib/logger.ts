@@ -1,8 +1,12 @@
 import { Logger } from 'fastmcp';
 
+const LOG_LEVEL = process.env.LOG_LEVEL;
+
 class CustomLogger implements Logger {
   debug(...args: unknown[]): void {
-    console.log("[DEBUG]", new Date().toISOString(), ...args);
+    if (LOG_LEVEL === 'debug') {
+      console.log("[DEBUG]", new Date().toISOString(), ...args);
+    }
   }
 
   error(...args: unknown[]): void {
@@ -10,7 +14,9 @@ class CustomLogger implements Logger {
   }
 
   info(...args: unknown[]): void {
-    console.info("[INFO]", new Date().toISOString(), ...args);
+    if (LOG_LEVEL && ['info', 'debug'].includes(LOG_LEVEL)) {
+      console.info("[INFO]", new Date().toISOString(), ...args);
+    }
   }
 
   log(...args: unknown[]): void {

@@ -73,3 +73,4 @@ server.start({
   },
   transportType: 'httpStream',
 });
+console.log(`MCP server available at: ${MCP_URL}`);
