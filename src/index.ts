@@ -4,6 +4,13 @@ import registerTools from './tools/index.js';
 import { MCPSession } from './types/server.js';
 import { ApiClient } from './lib/api/client';
 import { to } from './lib/utils/to';
+import * as process from 'node:process';
+
+process.env.BUDDY_API_URL = process.env.BUDDY_API_URL || 'https://api.buddy.works';
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
+const MCP_URL = process.env.MCP_URL || `http://localhost:${PORT}`;
+const BUDDY_API_URL = process.env.BUDDY_API_URL;
 
 const server = new FastMCP<MCPSession>({
   name: 'Buddy Sandbox MCP',
@@ -23,18 +30,18 @@ Do not attempt to set up a sandbox until a project is created or identified. Do 
   oauth: {
     enabled: true,
     authorizationServer: {
-      issuer: 'https://api.local.io',
-      authorizationEndpoint: 'https://api.local.io/oauth2/authorize',
-      tokenEndpoint: 'https://api.local.io/oauth2/token',
-      registrationEndpoint: 'https://api.local.io/auth/register',
+      issuer: BUDDY_API_URL,
+      authorizationEndpoint: `${BUDDY_API_URL}/oauth2/authorize`,
+      tokenEndpoint: `${BUDDY_API_URL}/oauth2/token`,
+      registrationEndpoint: `${BUDDY_API_URL}/auth/register`,
       responseTypesSupported: ['code'],
       grantTypesSupported: ['authorization_code', 'refresh_token'],
       codeChallengeMethodsSupported: ['S256'],
-      scopesSupported: ['USER_INFO', 'WORKSPACE']
+      scopesSupported: ['USER_INFO', 'USER_KEY', 'WORKSPACE', 'EXECUTION_MANAGE', 'REPOSITORY_WRITE', 'SANDBOX_MANAGE', 'PACKAGE_MANAGE' ],
     },
     protectedResource: {
-      resource: 'http://localhost:8080',
-      authorizationServers: ['http://localhost:8080'],
+      resource: MCP_URL,
+      authorizationServers: [MCP_URL],
     },
   },
   authenticate: async (request) => {
@@ -59,9 +66,6 @@ Do not attempt to set up a sandbox until a project is created or identified. Do 
 });
 
 registerTools(server);
-
-// Start with HTTP streaming transport
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 
 server.start({
   httpStream: {

@@ -74,7 +74,7 @@ export class ApiClient {
    * @param token - Buddy API token for authentication
    */
   constructor(token: string) {
-    const baseUrl = process.env.BUDDY_API_URL || 'https://api.buddy.works';
+    const baseUrl = process.env.BUDDY_API_URL!;
 
     this.token = token;
     this.baseUrl = baseUrl;
