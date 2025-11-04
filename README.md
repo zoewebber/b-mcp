@@ -43,7 +43,7 @@ claude mcp add-json buddy '{"type":"http","url":"http://localhost:8080/mcp","hea
 
 With OAuth:
 ```
-claude mcp add-json buddy '{"type":"http","url":"http://localhost:8080/mcp"}} --scope user'
+claude mcp add-json buddy '{"type":"http","url":"http://localhost:8080/mcp"}' --scope user
 ```
 
 
