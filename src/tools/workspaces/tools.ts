@@ -1,7 +1,7 @@
 import { FastMCP, UserError } from 'fastmcp';
 import { SetWorkspaceParams } from './types.js';
 import { Config } from '../../lib/config.js';
-import { ApiClient } from '../../lib/api/client.js';
+import { ApiClient, ApiError } from '../../lib/api/client.js';
 import { MCPSession } from '../../types/server.js';
 import getSessionToken from '../../lib/utils/getSessionToken.js';
 import { to } from '../../lib/utils/to';
@@ -19,6 +19,12 @@ const registerTools = (server: FastMCP<MCPSession>) => {
       const [workspace, getError] = await to(client.workspaces.get({ workspace: args.workspaceDomain }));
 
       if (getError) {
+        if (getError instanceof ApiError) {
+          if (getError.statusCode === 403) {
+            // Make sure thats this status code is only for this error. Maybe returning a link to workspace settings?
+            throw new UserError(`API is disabled in this workspace. Enable it before using this tool.`);
+          }
+        }
         throw new UserError(`Provided workspace does not exist.`);
       }
 
