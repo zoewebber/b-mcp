@@ -28,6 +28,12 @@ const registerTools = (server: FastMCP<MCPSession>) => {
         throw new UserError(`Provided workspace does not exist.`);
       }
 
+      const config = configService.getConfig();
+
+      if (config.workspace === workspace.domain) {
+        throw new UserError('Workspace is already set.');
+      }
+
       configService.updateConfig({
         workspace: workspace.domain,
         project: '',
